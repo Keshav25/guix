@@ -25,6 +25,7 @@
   #:use-module (gnu packages file-systems)
   #:use-module (gnu packages gnome)
   #:use-module (gnu packages mtools)
+  #:use-module (gnu packages ssh)
   #:use-module (gnu packages linux)
   #:use-module (gnu packages audio)
   #:use-module (gnu packages gnuzilla)
@@ -81,7 +82,7 @@ Section \"InputClass\"
 EndSection
 ")
 
-(define-public base-operating-system
+;; (define-public base-operating-system
   (operating-system
    (host-name "thinkpad")
    (timezone "America/New_York")
@@ -102,13 +103,18 @@ EndSection
 						(target (uuid
 								 "7229f203-1a94-4d1e-8399-fc548c666a10")))))
 
-   (file-systems (cons*
-				  (file-system
-				   (mount-point "/tmp")
-				   (device "none")
-				   (type "tmpfs")
-				   (check? #f))
-				  %base-file-systems))
+(file-systems (cons* (file-system
+					   (mount-point "/")
+					   (device (uuid
+								"7730e416-0aed-4436-b810-5ca35295f3c1"
+								'btrfs))
+					   (type "btrfs"))
+					  (file-system
+					   (mount-point "/home")
+					   (device (uuid
+								"9cf1c466-d8ee-44e6-bc94-23e5f869200e"
+								'btrfs))
+					   (type "btrfs")) %base-file-systems))
 
    (users (cons (user-account
 				 (name "kesh")
@@ -132,42 +138,42 @@ EndSection
 				 %base-groups))
    
    (packages (append (list
+					  ;; these are just pkgs I absolutely need to bootstrap the OS, other packages are either in home or separate profiles
 					  git
 					  curl
-					  stow
 					  ntfs-3g
 					  exfat-utils
 					  fuse-exfat
-					  stow
 					  vim
-					  emacs-next
-					  xterm
+					  openssh
 					  bluez
 					  bluez-alsa
+					  gcc
+					  binutils
+					  cmake
 					  pulseaudio
+					  emacs-next-tree-sitter
+					  alsa-utils
+					  font-jetbrains-mono
 					  tlp
-					  xf86-input-libinput
 					  nss-certs
 					  gvfs)
 					 %base-packages))
 
-   (services (cons* (service slim-service-type
-							 (slim-configuration
-							  (xorg-configuration
-							   (xorg-configuration
-								(keyboard-layout keyboard-layout)
-								(extra-config (list %xorg-libinput-config))))))
+   (services (cons* 
 					(service tlp-service-type
 							 (tlp-configuration
 							  (cpu-boost-on-ac? #t)
 							  (wifi-pwr-on-bat? #t)))
+					(service openssh-service-type)
+					(set-xorg-configuration
+					 (xorg-configuration (keyboard-layout keyboard-layout)))
 					(pam-limits-service 
 					 (list
 					  (pam-limits-entry "@realtime" 'both 'rtprio 99)
 					  (pam-limits-entry "@realtime" 'both 'memlock 'unlimited)))
 					(extra-special-file "/usr/bin/env"
 										(file-append coreutils "/bin/env"))
-					(service xfce-desktop-service-type)
 					(service thermald-service-type)
 					(service tor-service-type)
 					(service docker-service-type)
@@ -185,5 +191,6 @@ EndSection
 					(remove (lambda (service)
 							  (eq? (service-kind service) gdm-service-type))
 							%my-desktop-services)))
-   (name-service-switch %mdns-host-lookup-nss)))
+   (name-service-switch %mdns-host-lookup-nss))
+;; )
 

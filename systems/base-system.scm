@@ -3,43 +3,13 @@
   #:use-module (srfi srfi-1)
   #:use-module (gnu system nss)
   #:use-module (gnu system locale)
-  #:use-module (gnu services pm)
-  #:use-module (gnu services cups)
-  #:use-module (gnu services desktop)
-  #:use-module (gnu services docker)
-  #:use-module (gnu services networking)
-  #:use-module (gnu services dbus)
-  #:use-module (gnu services virtualization)
-  #:use-module (gnu services ssh)
-  #:use-module (gnu packages wm)
-  #:use-module (gnu packages cups)
-  #:use-module (gnu packages vim)
-  #:use-module (gnu packages fonts)
-  #:use-module (gnu packages gtk)
-  #:use-module (gnu packages gcc)
-  #:use-module (gnu packages cmake)
-  #:use-module (gnu packages xorg)
-  #:use-module (gnu packages emacs)
-  #:use-module (gnu packages vim)
-  #:use-module (gnu packages curl)
-  #:use-module (gnu packages file-systems)
-  #:use-module (gnu packages gnome)
-  #:use-module (gnu packages mtools)
-  #:use-module (gnu packages ssh)
-  #:use-module (gnu packages linux)
-  #:use-module (gnu packages audio)
-  #:use-module (gnu packages gnuzilla)
-  #:use-module (gnu packages pulseaudio)
-  #:use-module (gnu packages web-browsers)
-  #:use-module (gnu packages version-control)
-  #:use-module (gnu packages package-management)
   #:use-module (nongnu packages linux)
   #:use-module (nongnu system linux-initrd))
 
-(use-service-modules nix)
-(use-service-modules desktop xorg)
-(use-package-modules certs)
-(use-package-modules shells)
+(use-service-modules desktop xorg pm cups docker networking dbus virtualization ssh nix)
+
+(use-package-modules cups vim wm video version-control terminals disc xrdisorg web-browsers fonts gtk gcc cmake xorg 
+		     emacs curl file-systems gnome mtools ssh linux audio gnuzilla pulseaudio package-management certs shells)
 
 ;; Allow members of the "video" group to change the screen brightness.
 (define %backlight-udev-rule
@@ -60,27 +30,6 @@
 									  (udev-configuration (inherit config)
 														  (rules (cons %backlight-udev-rule
 																	   (udev-configuration-rules config)))))))
-
-(define %xorg-libinput-config
-  "Section \"InputClass\"
-  Identifier \"Touchpads\"
-  Driver \"libinput\"
-  MatchDevicePath \"/dev/input/event*\"
-  MatchIsTouchpad \"on\"
-
-  Option \"Tapping\" \"on\"
-  Option \"TappingDrag\" \"on\"
-  Option \"DisableWhileTyping\" \"on\"
-  Option \"MiddleEmulation\" \"on\"
-  Option \"ScrollMethod\" \"twofinger\"
-EndSection
-Section \"InputClass\"
-  Identifier \"Keyboards\"
-  Driver \"libinput\"
-  MatchDevicePath \"/dev/input/event*\"
-  MatchIsKeyboard \"on\"
-EndSection
-")
 
 ;; (define-public base-operating-system
   (operating-system

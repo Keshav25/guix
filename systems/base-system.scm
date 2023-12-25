@@ -11,6 +11,7 @@
   #:use-module (gnu services dbus)
   #:use-module (gnu services virtualization)
   #:use-module (gnu services ssh)
+  #:use-module (gnu services xorg)
   #:use-module (gnu packages wm)
   #:use-module (gnu packages cups)
   #:use-module (gnu packages vim)
